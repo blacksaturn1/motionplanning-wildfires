@@ -67,9 +67,9 @@ class Envir:
         obstacleAmount_current=0
         self.obstacles=[]
         while  obstacleAmount_current<=obstacleAmount_goal*.96:
-            obstacleAmount=math.floor(math.sqrt((obstacleAmount_goal-obstacleAmount_current)/4))
-            getRandomLocationX = 200+random.randrange(0,1500,5)
-            getRandomLocationY = 200+random.randrange(0,1500,5)
+            obstacleAmount=math.floor(math.sqrt((obstacleAmount_goal-obstacleAmount_current)/16))
+            getRandomLocationX = 200+random.randrange(0,5*250,1)
+            getRandomLocationY = 200+random.randrange(0,5*250,1)
             self.obstacles.append(pygame.Rect(getRandomLocationX, getRandomLocationY, obstacleAmount, obstacleAmount))
             obstacleAmount_current+=obstacleAmount*obstacleAmount
             percentageObstacle=obstacleAmount_current / obstacleAmount_goal

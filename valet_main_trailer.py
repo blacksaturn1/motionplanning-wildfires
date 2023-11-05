@@ -59,7 +59,7 @@ env.draw_obstacles()
 env.draw_goal()
 robot.draw(env.map)
 pygame.display.update()
-time.sleep(10)
+time.sleep(5)
 # robot=RobotTrailer(start,
 #             (r"./valet/ackermann2.png",r"./valet/trailer.png"),
 #             # 35,goal)
@@ -74,7 +74,7 @@ lattice = Lattice(start,goal,env.obstacles,robot,env.map,env.write_text_info)
 lastState = lattice.search()
 time.sleep(2)
 
-
+lastMove=None
 while running:
 
     for event in pygame.event.get():
@@ -87,13 +87,25 @@ while running:
     
     #robot.move()
     nextMove = lattice.step2()
+    if nextMove is None:
+        env.goal=(200, 620,0)
+        goal=env.goal
+        start = lastMove.get_location()
+        lattice = Lattice(start,goal,env.obstacles,robot,env.map,env.write_text_info)
+        lastState = lattice.search()
+        nextMove = lattice.step2()
+    else:
+        lastMove=nextMove
+
     robot.drive(nextMove)
     lattice.currentState=nextMove
-    time.sleep(.15)
+    time.sleep(.5)
     env.map.fill(env.black)
     env.draw_obstacles()
+    
+    
     env.draw_goal()
-
     robot.draw(env.map)
     env.write_info()
+
     
