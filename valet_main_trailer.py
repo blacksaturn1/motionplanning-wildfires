@@ -68,32 +68,32 @@ time.sleep(10)
 # pygame.display.update()
 # time.sleep(2)
 
-# dt=0
-# lastime=pygame.time.get_ticks()
-# lattice = Lattice(start,goal,env.obstacles,robot,env.map,env.write_text_info)
-# lastState = lattice.search()
-# time.sleep(2)
+dt=0
+lastime=pygame.time.get_ticks()
+lattice = Lattice(start,goal,env.obstacles,robot,env.map,env.write_text_info)
+lastState = lattice.search()
+time.sleep(2)
 
 
-# while running:
+while running:
 
-#     for event in pygame.event.get():
-#         if event.type==pygame.QUIT:
-#             running=False
-#     #     robot.move(event)
-#     dt = (pygame.time.get_ticks()-lastime)/1000
-#     lastime=pygame.time.get_ticks()
-#     pygame.display.update()
+    for event in pygame.event.get():
+        if event.type==pygame.QUIT:
+            running=False
+    #     robot.move(event)
+    dt = (pygame.time.get_ticks()-lastime)/1000
+    lastime=pygame.time.get_ticks()
+    pygame.display.update()
     
-#     #robot.move()
-#     nextMove = lattice.step2()
-#     robot.drive(nextMove)
-#     lattice.currentState=nextMove
-#     time.sleep(.15)
-#     env.map.fill(env.black)
-#     env.draw_obstacles()
-#     env.draw_goal()
+    #robot.move()
+    nextMove = lattice.step2()
+    robot.drive(nextMove)
+    lattice.currentState=nextMove
+    time.sleep(.15)
+    env.map.fill(env.black)
+    env.draw_obstacles()
+    env.draw_goal()
 
-#     robot.draw(env.map)
-#     env.write_info()
+    robot.draw(env.map)
+    env.write_info()
     
