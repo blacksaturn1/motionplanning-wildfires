@@ -24,6 +24,7 @@ class Lattice:
         self.lastState=None
         self.display = display
         self.write_info=write_info
+        self.robot.maxspeed=200
         
 
     def add_neighbors(self, neighbors):
@@ -65,7 +66,7 @@ class Lattice:
             state_location = state.get_location()
             neighbors = self.robot.get_neighbors(state_location)
             for nextState in neighbors:
-                reward = 5
+                reward = 4
                 nextState.cost_to_come = (state.cost_to_come+
                                           nextState.get_cost(state_location))
                 nextState.cost_to_go=nextState.get_cost(self.goal)*reward
@@ -131,8 +132,8 @@ class Lattice:
     
     def calculateCostToGoal(self,state:State):
         euclideanCost = ((self.goal[0]- state.x)**2 + (self.goal[1]- state.y)**2)**.5
-        # thetaCost = abs(self.goal[2]-ackermannState.theta)
-        return euclideanCost #+ thetaCost
+        thetaCost = abs(self.goal[2]-state.theta)
+        return euclideanCost*1.1 + thetaCost*.1
 
 
 

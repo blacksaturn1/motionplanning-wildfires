@@ -88,12 +88,25 @@ while running:
     #robot.move()
     nextMove = lattice.step2()
     if nextMove is None:
-        env.goal=(200, 620,0)
+        
+        env.goal=env.getrandom_goal()
         goal=env.goal
         start = lastMove.get_location()
+        env.map.fill(env.black)
+        env.draw_obstacles()
+        env.draw_goal()
+        robot.draw(env.map)
+        env.write_text_info("Resetting goal...")
+
+        pygame.display.update()
+        time.sleep(2)
         lattice = Lattice(start,goal,env.obstacles,robot,env.map,env.write_text_info)
         lastState = lattice.search()
         nextMove = lattice.step2()
+        # env.map.fill(env.black)
+        # env.draw_obstacles()
+        pygame.display.update()
+        time.sleep(2)
     else:
         lastMove=nextMove
 
