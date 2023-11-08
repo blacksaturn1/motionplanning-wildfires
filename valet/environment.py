@@ -98,7 +98,7 @@ class Envir:
         blockSize = self.pixels_per_meter * 5 #Set the size of the grid block
         for x in range(0, self.window_width, blockSize):
             for y in range(0, self.window_height, blockSize):
-                rect = pygame.Rect(x, y, blockSize, blockSize)
+                rect = pygame.Rect(x, y, blockSize, blockSize,)
                 pygame.draw.rect(self.map, self.white, rect, 1)
 
 

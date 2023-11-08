@@ -32,11 +32,11 @@ dims=(dimensionsForConversion,dimensionsForConversion)
 running=True
 
 robot=RobotAckermann(start,
-            r"./valet/ackermann2.png",
+            r"./valet/firetruck.png",
             # 35,goal)
             .1*3779.52,goal)
 
-wumpus=Wumpus((600,600,0),
+wumpus=Wumpus((700,700,0),
             r"./valet/wumpus.png",
             4*5)
 
