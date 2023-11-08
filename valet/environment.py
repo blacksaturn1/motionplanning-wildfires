@@ -3,7 +3,7 @@ import random
 import math
 from valet.robots.robot import Robot
 from typing import List
-
+import numpy as np
 class Envir:
     def __init__(self,dimensions,robot:Robot, goal):
         #colors
@@ -17,13 +17,17 @@ class Envir:
         # map dim
         self.height = dimensions[0]
         self.width = dimensions[1]
+        self.pixels_per_meter=4
         # window settings
         pygame.display.set_caption("Robot")
-        self.map=pygame.display.set_mode((self.width,self.height))
+        self.window_width = self.width*self.pixels_per_meter
+        self.window_height = self.height*self.pixels_per_meter
+        self.map=pygame.display.set_mode((self.window_width ,self.window_height))
         self.font=pygame.font.Font('freesansbold.ttf',25)
         self.text = self.font.render('default',True,self.white,self.black)
         self.textRect = self.text.get_rect()
-        self.textRect.center=(dimensions[1]-600,dimensions[0]-100)
+        self.textRect.center=(dimensions[1]*self.pixels_per_meter-600,dimensions[0]*self.pixels_per_meter-100)
+        self.random_number_generator = np.random.default_rng(seed=42)
 
         self.goal = goal
         # obstacles
@@ -37,7 +41,7 @@ class Envir:
             pygame.Rect(0, 650, 800, 160),
         ]
         self.obstacleGrid=[]
-        # Initialize the grid attribute
+        # Initialize the grid attributes for Wumpus
         self.grid_size = 20
         self.grid_width = dimensions[1] // self.grid_size
         self.grid_height = dimensions[0] // self.grid_size
@@ -56,24 +60,51 @@ class Envir:
 
     def draw_obstacles(self):
         for obstacle in self.obstacles:
-            pygame.draw.rect(self.map, self.red, obstacle)
+            pygame.draw.rect(self.map, self.green, obstacle)
 
     def draw_goal(self):
         pygame.draw.circle(self.map, self.green,[self.goal[0],self.goal[1]],15,1)
 
     def getrandom_obstacles(self,coveragePer=.10):
         percentageObstacle = 0
-        obstacleAmount_goal=250*5*250*5*coveragePer
+        obstacleAmount_goal=self.height*self.pixels_per_meter*self.width*self.pixels_per_meter*coveragePer
         obstacleAmount_current=0
         self.obstacles=[]
-        while  obstacleAmount_current<=obstacleAmount_goal*.96:
-            obstacleAmount=math.floor(math.sqrt((obstacleAmount_goal-obstacleAmount_current)/16))
-            getRandomLocationX = 200+random.randrange(0,5*250-200,1)
-            getRandomLocationY = 200+random.randrange(0,5*250-200,1)
-            self.obstacles.append(pygame.Rect(getRandomLocationX, getRandomLocationY, obstacleAmount, obstacleAmount))
+        minObstacle_amount=self.pixels_per_meter*5
+        while  obstacleAmount_current<=obstacleAmount_goal*.99:
+            #obstacleAmount=math.floor(math.sqrt((obstacleAmount_goal-obstacleAmount_current)/16))
+            obstacleAmountCount = self.random_number_generator.choice(range(1,5,1))
+            obstacleAmount = minObstacle_amount * obstacleAmountCount
+            getRandomLocationX = 20+random.randrange(0,5*250-obstacleAmount,1)
+            getRandomLocationY = 20+random.randrange(0,5*250-obstacleAmount,1)
+            rect = pygame.Rect(getRandomLocationX, getRandomLocationY, obstacleAmount, obstacleAmount)
+            if self.isCollision(rect):
+                continue
+            self.obstacles.append(rect)
             obstacleAmount_current+=obstacleAmount*obstacleAmount
             percentageObstacle=obstacleAmount_current / obstacleAmount_goal
          
          
     def getrandom_goal(self):
          return (random.randrange(0,5*250,1), random.randrange(0,5*250,1),0)
+    
+    def isCollision(self,rect):
+        for obstacle in self.obstacles:
+            if obstacle.colliderect(rect):
+                return True
+        return False
+    
+    def drawGrid(self):
+        blockSize = self.pixels_per_meter * 5 #Set the size of the grid block
+        for x in range(0, self.window_width, blockSize):
+            for y in range(0, self.window_height, blockSize):
+                rect = pygame.Rect(x, y, blockSize, blockSize)
+                pygame.draw.rect(self.map, self.white, rect, 1)
+
+
+    def draw_environment(self):
+        self.map.fill(self.black)
+        self.drawGrid()
+        self.draw_obstacles()
+        self.draw_goal()
+        
