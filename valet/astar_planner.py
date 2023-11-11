@@ -1,30 +1,30 @@
-from valet.states.state import State
+from valet.states.discrete_state import DiscreteState
 from typing import List, Optional, Tuple
 import pygame
 import math
 from queue import PriorityQueue
-class Lattice:
+class AStar:
 
-    def __init__(self,location:Tuple[float,float,float],goal:Tuple[float,float,float],
-                 obstacleGrid,robot:State,display, write_info:callable) -> None:
+    def __init__(self,location:Tuple[float,float],goal:Tuple[float,float],
+                 obstacleGrid,robot:DiscreteState,display, write_info:callable) -> None:
         self.currentLocation=location
-        self.goal:Tuple[float,float,float]=goal
-        self.neighbors:List[State]=[]
-        self.path: dict[State,State]={}
-        self.network_path: dict[State,List[State]]={}
-        self.cost: dict[State,float]={}
+        self.goal:Tuple[float,float]=goal
+        self.neighbors:List[DiscreteState]=[]
+        self.path: dict[DiscreteState,DiscreteState]={}
+        self.network_path: dict[DiscreteState,List[DiscreteState]]={}
+        self.cost: dict[DiscreteState,float]={}
         self.obstacles:list[pygame.Rect] = obstacleGrid
-        self.queue:PriorityQueue[State] = PriorityQueue()
+        self.queue:PriorityQueue[DiscreteState] = PriorityQueue()
         self.robot = robot
-        x,y,theta=self.currentLocation
-        self.firstState = State((x,y),theta,self.robot.img)
+        x,y=self.currentLocation
+        self.firstState = DiscreteState((x,y),self.robot.img)
         self.firstState.cost_to_come = 0
         self.firstState.cost_to_go=self.firstState.get_cost(self.goal)
         self.currentState = self.firstState
         self.lastState=None
         self.display = display
         self.write_info=write_info
-        self.robot.maxspeed=200
+        self.robot.maxspeed=30
         
 
     def add_neighbors(self, neighbors):
@@ -36,7 +36,7 @@ class Lattice:
 
     def search(self):
         cost = 9999
-        x,y,theta=self.currentLocation
+        x,y=self.currentLocation
         previousLocation=self.currentLocation
         startState = self.firstState
         lowestCostState=startState
@@ -49,24 +49,24 @@ class Lattice:
             state = self.queue.get()
             cost = state.cost_to_go
             
-            if state.cost_to_go<lowestCostState.cost_to_go:
-                lowestCostState=state
-                if state.cost_to_go>500:
-                    self.robot.maxspeed=220
-                elif state.cost_to_go>200:
-                    self.robot.maxspeed=40
-                    self.robot.dt=.5
-                elif state.cost_to_go>50:
-                    self.robot.maxspeed=30
-                    self.robot.dt=.5
-                elif state.cost_to_go>15:
-                    self.robot.maxspeed=10
-                    self.robot.dt=.5
+            # if state.cost_to_go<lowestCostState.cost_to_go:
+            #     lowestCostState=state
+            #     if state.cost_to_go>500:
+            #         self.robot.maxspeed=220
+            #     elif state.cost_to_go>200:
+            #         self.robot.maxspeed=40
+            #         self.robot.dt=.5
+            #     elif state.cost_to_go>50:
+            #         self.robot.maxspeed=30
+            #         self.robot.dt=.5
+            #     elif state.cost_to_go>15:
+            #         self.robot.maxspeed=10
+            #         self.robot.dt=.5
 
             state_location = state.get_location()
             neighbors = self.robot.get_neighbors(state_location)
             for nextState in neighbors:
-                reward = 4
+                reward = 1
                 nextState.cost_to_come = (state.cost_to_come+
                                           nextState.get_cost(state_location))
                 nextState.cost_to_go=nextState.get_cost(self.goal)*reward
@@ -75,27 +75,30 @@ class Lattice:
                 if nextState not in self.path:
                     self.path[nextState]=state
                     self.queue.put(nextState)
-                    position = nextState.xy
+                    position = nextState.xx,nextState.yy
                     self.display.fill((255, 0, 0), (position, (2, 2)))
                     pygame.event.get()
                     pygame.display.update()
-            if counter >1 and counter%500==0:
-                break
+                else:
+                    print("Duplicate")
+            # if counter >1 and counter%500==0:
+            #     break
+
         self.lastState = state
         return state
         
 
-    def goalCheck(self,state:State):
+    def goalCheck(self,state:DiscreteState):
         distanceToGoal = self.calculateCostToGoal(state)
-        thetaDiff = abs(self.goal[2]-state.theta)
-        return distanceToGoal<=5 and thetaDiff<=(math.pi/8)
+        # thetaDiff = abs(self.goal[2]-state.theta)
+        return distanceToGoal<=2 #and thetaDiff<=(math.pi/8)
 
 
     def plan(self):
         for neighbor in self.neighbors:
             self.cost[neighbor]=self.calculateCost(neighbor)
 
-    def isCollision(self,state:State):
+    def isCollision(self,state:DiscreteState):
         for obstacle in self.obstacles:
             if obstacle.colliderect(state.rect):
                 return True
@@ -128,12 +131,15 @@ class Lattice:
             
         self.currentState=currentState
    
-        return currentState
+        # previousState=self.path[self.currentState]
+        # self.currentState=previousState
+
+        return previousState
     
-    def calculateCostToGoal(self,state:State):
-        euclideanCost = ((self.goal[0]- state.x)**2 + (self.goal[1]- state.y)**2)**.5
-        thetaCost = abs(self.goal[2]-state.theta)
-        return euclideanCost*1.1 + thetaCost*.1
+    def calculateCostToGoal(self,state:DiscreteState):
+        euclideanCost = ((self.goal[0]- state.c)**2 + (self.goal[1]- state.r)**2)**.5
+        # thetaCost = abs(self.goal[2]-state.theta)
+        return euclideanCost #*1.1 + thetaCost*.1
 
 
 

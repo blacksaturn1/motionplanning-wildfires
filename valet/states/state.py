@@ -31,9 +31,9 @@ class State:
 
 
     def get_cost(self,goal):
-        x,y,theta = goal
+        x,y,thetaCost = goal
         euclideanCost = ((x- self.x)**2 + (y- self.y)**2)**.5
-        # thetaCost = abs(theta-self.theta)
+        #thetaCost = abs(theta-self.theta)
         return euclideanCost  
 
    

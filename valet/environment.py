@@ -17,7 +17,7 @@ class Envir:
         # map dim
         self.height = dimensions[0]
         self.width = dimensions[1]
-        self.pixels_per_meter=4
+        self.pixels_per_meter=3
         # window settings
         pygame.display.set_caption("Robot")
         self.window_width = self.width*self.pixels_per_meter
@@ -28,6 +28,9 @@ class Envir:
         self.textRect = self.text.get_rect()
         self.textRect.center=(dimensions[1]*self.pixels_per_meter-600,dimensions[0]*self.pixels_per_meter-100)
         self.random_number_generator = np.random.default_rng(seed=42)
+        self.text2 = self.font.render('default',True,self.white,self.black)
+        self.textRect2 = self.text.get_rect()
+        self.textRect2.center=(dimensions[1]*self.pixels_per_meter-600,dimensions[0]*self.pixels_per_meter-200)
 
         self.goal = goal
         # obstacles
@@ -56,14 +59,16 @@ class Envir:
         self.text=self.font.render(text,True,self.yel,self.black)
         self.map.blit(self.text,self.textRect)
 
-
+    def write_text_info2(self,text):
+        self.text2=self.font.render(text,True,self.yel,self.black)
+        self.map.blit(self.text2,self.textRect2)
 
     def draw_obstacles(self):
         for obstacle in self.obstacles:
             pygame.draw.rect(self.map, self.green, obstacle)
 
-    def draw_goal(self):
-        pygame.draw.circle(self.map, self.green,[self.goal[0],self.goal[1]],15,1)
+    def draw_goal(self,goal=(0,0),color=(0,255,0)):
+        pygame.draw.circle(self.map, color,[goal[0],goal[1]],30,3)
 
     def getrandom_obstacles(self,coveragePer=.10):
         percentageObstacle = 0
@@ -73,11 +78,16 @@ class Envir:
         minObstacle_amount=self.pixels_per_meter*5
         while  obstacleAmount_current<=obstacleAmount_goal*.99:
             #obstacleAmount=math.floor(math.sqrt((obstacleAmount_goal-obstacleAmount_current)/16))
-            obstacleAmountCount = self.random_number_generator.choice(range(1,5,1))
+            obstacleAmountCount = self.random_number_generator.choice(range(1,15,1))
             obstacleAmount = minObstacle_amount * obstacleAmountCount
-            getRandomLocationX = 20+random.randrange(0,5*250-obstacleAmount,1)
-            getRandomLocationY = 20+random.randrange(0,5*250-obstacleAmount,1)
-            rect = pygame.Rect(getRandomLocationX, getRandomLocationY, obstacleAmount, obstacleAmount)
+            obstacleAmountCount = self.random_number_generator.choice(range(1,14,1))
+            obstacleAmount2 = minObstacle_amount * obstacleAmountCount
+            getRandomLocationX = 20+random.randrange(0,self.pixels_per_meter*250-obstacleAmount,1)
+            getRandomLocationY = 20+random.randrange(0,self.pixels_per_meter*250-obstacleAmount,1)
+
+
+
+            rect = pygame.Rect(getRandomLocationX, getRandomLocationY, obstacleAmount, obstacleAmount2)
             if self.isCollision(rect):
                 continue
             self.obstacles.append(rect)
@@ -87,6 +97,12 @@ class Envir:
          
     def getrandom_goal(self):
          return (random.randrange(0,5*250,1), random.randrange(0,5*250,1),0)
+    
+    def getrandom_obstacle(self):
+         obstacle_index = self.random_number_generator.choice(range(0,len(self.obstacles),1))
+         obstacle = self.obstacles[obstacle_index]
+         return (obstacle.x,obstacle.y)
+         
     
     def isCollision(self,rect):
         for obstacle in self.obstacles:
@@ -106,5 +122,22 @@ class Envir:
         self.map.fill(self.black)
         self.drawGrid()
         self.draw_obstacles()
-        self.draw_goal()
+        # self.draw_goal()
         
+    def convert_column_to_x(self,column, square_width):
+        x = 1 * (square_width/2.0 ) + square_width * column
+        return x
+
+    def convert_row_to_y(self,row, square_height):
+        y = 1 * (square_height/2.0) + square_height * row 
+        return y
+    
+    def convert_x_to_column(self,x, square_width):
+        
+        column = int(x /square_width)
+
+        return column
+
+    def convert_y_to_row(self,y, square_height):
+        row = int(y /(square_height))
+        return row
