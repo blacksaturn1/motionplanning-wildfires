@@ -43,8 +43,12 @@ class Envir:
             pygame.Rect(650, 600, 150, 40),
             # pygame.Rect(0, 650, 800, 160),
         ]
-        self.burning_obstacles=[]
-        self.extinguished_obstacles=[]
+        self.obstacle_state={}
+        for idx,obstacle in enumerate(self.obstacles):
+            self.obstacle_state[idx] = self.green
+
+        #self.burning_obstacles=[]
+        #self.extinguished_obstacles=[]
 
         # self.obstacleGrid=[]
         # # Initialize the grid attributes for Wumpus
@@ -67,8 +71,9 @@ class Envir:
         self.map.blit(self.text2,self.textRect2)
 
     def draw_obstacles(self):
-        for obstacle in self.obstacles:
-            pygame.draw.rect(self.map, self.green, obstacle)
+        for index,obstacle in enumerate(self.obstacles):
+            color = self.obstacle_state[index]
+            pygame.draw.rect(self.map, color, obstacle)
 
     def draw_goal(self,goal=(0,0),color=(0,255,0)):
         pygame.draw.circle(self.map, color,[goal[0],goal[1]],30,3)
@@ -96,6 +101,10 @@ class Envir:
             self.obstacles.append(rect)
             obstacleAmount_current+=obstacleAmount*obstacleAmount
             percentageObstacle=obstacleAmount_current / obstacleAmount_goal
+        
+        self.obstacle_state={}
+        for idx,obstacle in enumerate(self.obstacles):
+            self.obstacle_state[idx] = self.green
          
          
     def getrandom_goal(self):

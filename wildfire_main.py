@@ -117,8 +117,8 @@ while running:
     #lattice.currentState=nextMove
 
     nextMove2 = astar.step2()
-    if nextMove2 is None:
-        
+    if nextMove2.c==wumpusDiscreteGoal[0] and nextMove2.r==wumpusDiscreteGoal[1]:
+        env.obstacle_state[wumpus_goal[2]]=env.red
         # env.goal=env.getrandom_obstacle()
         # goal=env.goal
         # start = lastMove2.get_location()

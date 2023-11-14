@@ -91,6 +91,7 @@ class AStar:
         for obstacle in self.obstacles:
             if obstacle.colliderect(state.rect):
                 return True
+            
         return False
     
     def step(self):
