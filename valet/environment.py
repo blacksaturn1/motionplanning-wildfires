@@ -41,14 +41,17 @@ class Envir:
             pygame.Rect(300, 200, 200, 200),  
             pygame.Rect(200, 600, 340, 40),
             pygame.Rect(650, 600, 150, 40),
-            pygame.Rect(0, 650, 800, 160),
+            # pygame.Rect(0, 650, 800, 160),
         ]
-        self.obstacleGrid=[]
-        # Initialize the grid attributes for Wumpus
-        self.grid_size = 20
-        self.grid_width = dimensions[1] // self.grid_size
-        self.grid_height = dimensions[0] // self.grid_size
-        self.grid = [[0 for _ in range(self.grid_width)] for _ in range(self.grid_height)]
+        self.burning_obstacles=[]
+        self.extinguished_obstacles=[]
+
+        # self.obstacleGrid=[]
+        # # Initialize the grid attributes for Wumpus
+        # self.grid_size = 20
+        # self.grid_width = dimensions[1] // self.grid_size
+        # self.grid_height = dimensions[0] // self.grid_size
+        # self.grid = [[0 for _ in range(self.grid_width)] for _ in range(self.grid_height)]
 
     def write_info(self):
         txt = self.robot.get_write_info()
@@ -78,9 +81,9 @@ class Envir:
         minObstacle_amount=self.pixels_per_meter*5
         while  obstacleAmount_current<=obstacleAmount_goal*.99:
             #obstacleAmount=math.floor(math.sqrt((obstacleAmount_goal-obstacleAmount_current)/16))
-            obstacleAmountCount = self.random_number_generator.choice(range(1,15,1))
+            obstacleAmountCount = self.random_number_generator.choice(range(1,5,1))
             obstacleAmount = minObstacle_amount * obstacleAmountCount
-            obstacleAmountCount = self.random_number_generator.choice(range(1,14,1))
+            obstacleAmountCount = self.random_number_generator.choice(range(1,5,1))
             obstacleAmount2 = minObstacle_amount * obstacleAmountCount
             getRandomLocationX = 20+random.randrange(0,self.pixels_per_meter*250-obstacleAmount,1)
             getRandomLocationY = 20+random.randrange(0,self.pixels_per_meter*250-obstacleAmount,1)
@@ -101,7 +104,7 @@ class Envir:
     def getrandom_obstacle(self):
          obstacle_index = self.random_number_generator.choice(range(0,len(self.obstacles),1))
          obstacle = self.obstacles[obstacle_index]
-         return (obstacle.x,obstacle.y)
+         return (obstacle.x,obstacle.y,obstacle_index)
          
     
     def isCollision(self,rect):

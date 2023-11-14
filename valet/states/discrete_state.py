@@ -23,14 +23,14 @@ class DiscreteState(State):
         self.yy = self.convert_column_to_x(self.r)
         
         self.rect = self.rotated.get_rect(center=(self.xx,self.yy))
-        self.rect.width*=1.3
-        self.rect.height*=1.3
+        self.rect.width*=1
+        self.rect.height*=1
         self.cost_to_come=0
         self.cost_to_go=0
 
 
     def get_location(self):
-        return (self.r,self.c)
+        return (self.c,self.r)
 
 
     def get_cost(self,goal):

@@ -46,6 +46,7 @@ wumpus=Wumpus(wumpus_start,
 
 env=Envir(dims,robot,goal)
 # env.map.fill(env.black)
+
 env.getrandom_obstacles()
 
 
@@ -62,7 +63,7 @@ wumpus_goal=env.getrandom_obstacle()
 # env.goal=wumpus_goal
 env.draw_environment()
 env.draw_goal(wumpus_goal,env.red)
-# env.draw_obstacles()
+env.draw_obstacles()
 # env.draw_goal()
 # env.drawGrid()
 robot.draw(env.map)
@@ -71,11 +72,12 @@ wumpus.draw(env.map)
 pygame.display.update()
 #time.sleep(5)
 
-wumpusDiscreteGoal = env.convert_x_to_column(wumpus_goal[0],15),env.convert_y_to_row(wumpus_goal[1],15)
+wumpusDiscreteGoal = env.convert_x_to_column(wumpus_goal[0],15)-1,env.convert_y_to_row(wumpus_goal[1],15)
+#wumpusDiscreteGoal=(35,35)
 
 astar = AStar(wumpus_start,wumpusDiscreteGoal,env.obstacles,wumpus,env.map,env.write_text_info2)
 lastState2 = astar.search()
-time.sleep(10)
+time.sleep(2)
 
 while running:
 

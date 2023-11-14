@@ -35,11 +35,11 @@ class AStar:
             self.neighbors.append(neighbor)
 
     def search(self):
-        cost = 9999
+        # cost = 9999
         x,y=self.currentLocation
-        previousLocation=self.currentLocation
+        # previousLocation=self.currentLocation
         startState = self.firstState
-        lowestCostState=startState
+        # lowestCostState=startState
         self.queue.put(startState)
         state=startState
         counter=0
@@ -47,22 +47,8 @@ class AStar:
             counter+=1
             self.write_info("Planner iteration: {}".format(counter))
             state = self.queue.get()
-            cost = state.cost_to_go
+            # cost = state.cost_to_go
             
-            # if state.cost_to_go<lowestCostState.cost_to_go:
-            #     lowestCostState=state
-            #     if state.cost_to_go>500:
-            #         self.robot.maxspeed=220
-            #     elif state.cost_to_go>200:
-            #         self.robot.maxspeed=40
-            #         self.robot.dt=.5
-            #     elif state.cost_to_go>50:
-            #         self.robot.maxspeed=30
-            #         self.robot.dt=.5
-            #     elif state.cost_to_go>15:
-            #         self.robot.maxspeed=10
-            #         self.robot.dt=.5
-
             state_location = state.get_location()
             neighbors = self.robot.get_neighbors(state_location)
             for nextState in neighbors:
@@ -91,7 +77,10 @@ class AStar:
     def goalCheck(self,state:DiscreteState):
         distanceToGoal = self.calculateCostToGoal(state)
         # thetaDiff = abs(self.goal[2]-state.theta)
-        return distanceToGoal<=2 #and thetaDiff<=(math.pi/8)
+        #return distanceToGoal<=0 #and thetaDiff<=(math.pi/8)
+        if self.goal[0]==state.c and self.goal[1]==state.r:
+            return True
+        return False
 
 
     def plan(self):
@@ -120,7 +109,7 @@ class AStar:
         if self.currentState is None:
             return None
         if self.currentState==self.lastState:
-            return None
+            return self.currentState
         
         currentState = self.lastState
         previousState = currentState
