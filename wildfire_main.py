@@ -62,7 +62,7 @@ lastime=pygame.time.get_ticks()
 wumpus_goal=env.getrandom_obstacle()
 # env.goal=wumpus_goal
 env.draw_environment()
-env.draw_goal(wumpus_goal,env.red)
+env.draw_goal(wumpus_goal,env.yel)
 env.draw_obstacles()
 # env.draw_goal()
 # env.drawGrid()
@@ -117,8 +117,36 @@ while running:
     #lattice.currentState=nextMove
 
     nextMove2 = astar.step2()
+    
+    wumpus.drive(nextMove2)
+    #astar.currentState=nextMove2
+    
+    
+    time.sleep(.3)
+    env.map.fill(env.black)
+    env.draw_environment()
+    robot.draw(env.map)
+    wumpus.draw(env.map)
+    env.draw_goal(wumpus_goal,env.yel)
+    env.write_info()
     if nextMove2.c==wumpusDiscreteGoal[0] and nextMove2.r==wumpusDiscreteGoal[1]:
         env.obstacle_state[wumpus_goal[2]]=env.red
+        # wumpus.drive(nextMove2)
+        # TODO: get a non-burning obstacle
+        wumpus_goal=env.getrandom_obstacle()
+        wumpusDiscreteGoal = env.convert_x_to_column(wumpus_goal[0],15)-1,env.convert_y_to_row(wumpus_goal[1],15)
+        env.draw_environment()
+        robot.draw(env.map)
+        wumpus.draw(env.map)
+        env.draw_goal(wumpus_goal,env.yel)
+        env.write_info()
+        pygame.display.update()
+        #wumpusDiscreteGoal=(35,35)
+        wumpus_start = (nextMove2.c,nextMove2.r)
+        astar = AStar(wumpus_start,wumpusDiscreteGoal,env.obstacles,wumpus,env.map,env.write_text_info2)
+        lastState2 = astar.search()
+        # env.goal=wumpus_goal
+        
         # env.goal=env.getrandom_obstacle()
         # goal=env.goal
         # start = lastMove2.get_location()
@@ -137,19 +165,8 @@ while running:
         # env.map.fill(env.black)
         # env.draw_obstacles()
         pygame.display.update()
-        time.sleep(2)
+        # time.sleep(2)
     else:
         lastMove2=nextMove2
 
-    wumpus.drive(nextMove2)
-    #astar.currentState=nextMove2
-    
-    
-    time.sleep(1)
-    env.map.fill(env.black)
-    env.draw_environment()
-    robot.draw(env.map)
-    wumpus.draw(env.map)
-    env.draw_goal(wumpus_goal,env.red)
-    env.write_info()
     
