@@ -86,9 +86,9 @@ class Envir:
         minObstacle_amount=self.pixels_per_meter*5
         while  obstacleAmount_current<=obstacleAmount_goal*.99:
             #obstacleAmount=math.floor(math.sqrt((obstacleAmount_goal-obstacleAmount_current)/16))
-            obstacleAmountCount = self.random_number_generator.choice(range(1,8,1))
+            obstacleAmountCount = self.random_number_generator.choice(range(2,15,1))
             obstacleAmount = minObstacle_amount * obstacleAmountCount
-            obstacleAmountCount = self.random_number_generator.choice(range(1,8,1))
+            obstacleAmountCount = self.random_number_generator.choice(range(1,9,1))
             obstacleAmount2 = minObstacle_amount * obstacleAmountCount
             getRandomLocationX = 20+random.randrange(0,self.pixels_per_meter*250-obstacleAmount,1)
             getRandomLocationY = 20+random.randrange(0,self.pixels_per_meter*250-obstacleAmount,1)
@@ -114,7 +114,13 @@ class Envir:
          obstacle_index = self.random_number_generator.choice(range(0,len(self.obstacles),1))
          obstacle = self.obstacles[obstacle_index]
          return (obstacle.x,obstacle.y,obstacle_index)
-         
+    
+    def getburning_obstacle(self):
+         for key,value in self.obstacle_state.items():
+             if value==self.red:
+                 obstacle = self.obstacles[key]
+                 return (obstacle.x-15,obstacle.y,key)
+     
     
     def isCollision(self,rect):
         for obstacle in self.obstacles:

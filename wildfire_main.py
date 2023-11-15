@@ -7,6 +7,7 @@ from valet.robots.wumpus import Wumpus
 from valet.environment import Envir
 from valet.lattice import Lattice
 from valet.astar_planner import AStar
+from valet.prm_planner import PRM
 import time
 
 
@@ -19,7 +20,7 @@ pygame.init()
 # start=(100,100,0)
 # start=(550, 550,0)
 
-start=(100,100,0)
+start=(25,25,0)
 
 # goal=(550, 650,0)
 # goal=(400, 500,0)
@@ -31,7 +32,7 @@ dimensionsForConversion=cells
 dims=(dimensionsForConversion,dimensionsForConversion)
 
 running=True
-
+debug=False
 robot=RobotAckermann(start,
             r"./valet/firetruck.png",
             # 35,goal)
@@ -45,27 +46,24 @@ wumpus=Wumpus(wumpus_start,
 
 
 env=Envir(dims,robot,goal)
-# env.map.fill(env.black)
-
 env.getrandom_obstacles()
-
-
-
 
 dt=0
 lastime=pygame.time.get_ticks()
 # lattice = Lattice(start,goal,env.obstacles,robot,env.map,env.write_text_info)
 # lastState = lattice.search()
 # time.sleep(2)
-
-
 wumpus_goal=env.getrandom_obstacle()
+prm=PRM(start,goal,env.obstacles,robot,env.map,env.write_text_info)
+prm.sample()
+prm.create_network()
+
 # env.goal=wumpus_goal
 env.draw_environment()
+if debug:
+    for node in prm.planner.nodes:
+        node.draw(env.map, 10, 1)
 env.draw_goal(wumpus_goal,env.yel)
-env.draw_obstacles()
-# env.draw_goal()
-# env.drawGrid()
 robot.draw(env.map)
 wumpus.draw(env.map)
 # env.write_info()
@@ -75,10 +73,17 @@ pygame.display.update()
 wumpusDiscreteGoal = env.convert_x_to_column(wumpus_goal[0],15)-1,env.convert_y_to_row(wumpus_goal[1],15)
 #wumpusDiscreteGoal=(35,35)
 
+
+
+
+
 astar = AStar(wumpus_start,wumpusDiscreteGoal,env.obstacles,wumpus,env.map,env.write_text_info2)
 lastState2 = astar.search()
 time.sleep(2)
-
+robot_nextMove=None
+robot_lastMove=None
+firetruck_running=False
+firetruck_waypoint=1
 while running:
 
     for event in pygame.event.get():
@@ -89,32 +94,47 @@ while running:
     lastime=pygame.time.get_ticks()
     pygame.display.update()
     
-    # #robot.move()
-    # nextMove = lattice.step2()
-    # if nextMove is None:
+    goal = env.getburning_obstacle()
+    if goal is not None:
+        env.draw_goal(goal,env.blue)
         
-    #     env.goal=env.getrandom_goal()
-    #     goal=env.goal
-    #     start = lastMove.get_location()
-        
-    #     env.draw_environment()
-    #     robot.draw(env.map)
-    #     wumpus.draw(env.map)
-    #     env.write_text_info("Resetting goal...")
+    if robot_nextMove is None:
+        if robot_lastMove is not None:
+            start = robot_lastMove.get_location()
+        if goal is not None:
+            if not firetruck_running:
+                prm.get_path(start,goal)
+                firetruck_running=True
+            else:
+                firetruck_waypoint+=1
+            for node in prm.search.path:
+                pygame.draw.circle(env.map, env.blue, node.get_coords(), 5 + 2, width=0)
+            pygame.display.update()
+            #time.sleep(5)
+            if len(prm.search.path)>0 and len(prm.search.path)>firetruck_waypoint:
+                goal_local = prm.search.path[firetruck_waypoint].get_coords()
+                goal_lattice = (goal_local[0],goal_local[1],0)
+                lattice = Lattice(start,goal_lattice,env.obstacles,robot,env.map,env.write_text_info)
+                robot_lastState = lattice.search()
+            else:
+                firetruck_running=False
+                firetruck_waypoint=1
+                env.obstacle_state[goal[2]]=env.green
+                goal=None
+    else:
+        robot_lastMove=robot_nextMove
+    
+    if goal is not None and len(prm.search.path)>0:
+        robot_nextMove = lattice.step2()
+        lattice.currentState=robot_nextMove
+        # if robot_nextMove is None and goal is not None and firetruck_waypoint==1:
+        #     env.obstacle_state[goal[2]]=env.green
+    
+    if robot_nextMove is not None:
+        robot_lastMove=robot_nextMove
 
-    #     pygame.display.update()
-    #     time.sleep(2)
-    #     lattice = Lattice(start,goal,env.obstacles,robot,env.map,env.write_text_info)
-    #     lastState = lattice.search()
-    #     nextMove = lattice.step2()
-    #     # env.map.fill(env.black)
-    #     # env.draw_obstacles()
-    #     pygame.display.update()
-    #     time.sleep(2)
-    # else:
-    #     lastMove=nextMove
-    #robot.drive(nextMove)
-    #lattice.currentState=nextMove
+    robot.drive(robot_nextMove)
+    
 
     nextMove2 = astar.step2()
     
@@ -122,9 +142,13 @@ while running:
     #astar.currentState=nextMove2
     
     
-    time.sleep(.3)
-    env.map.fill(env.black)
+    time.sleep(.1)
+    
+    
     env.draw_environment()
+    if debug:
+        for node in prm.planner.nodes:
+            node.draw(env.map, 15, 1)
     robot.draw(env.map)
     wumpus.draw(env.map)
     env.draw_goal(wumpus_goal,env.yel)
@@ -168,5 +192,8 @@ while running:
         # time.sleep(2)
     else:
         lastMove2=nextMove2
+
+    
+
 
     
