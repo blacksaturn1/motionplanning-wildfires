@@ -19,12 +19,12 @@ class RobotAckermann(Robot):
         self.v=0.00 * self.m2p
         self.psi = 0
         self.psi_max=60
-        self.maxspeed=110#0.02 * self.m2p
+        self.maxspeed=45#0.02 * self.m2p
         self.minspeed=0.01 * self.m2p
         self.img = pygame.image.load(robotImg)
         self.rotated = self.img
         self.l=2.8 *25#* 15#* 35
-        self.dt = 0.5
+        self.dt = 0.25
         self.distanceToGoal=0.0
         self.rect=self.rotated.get_rect(center=(self.x,
                                                 self.y))

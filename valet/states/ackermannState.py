@@ -18,8 +18,8 @@ class AckermannState(State):
         self.v=v
         self.rotated = pygame.transform.rotozoom(self.img,math.degrees(self.theta),1)
         self.rect = self.rotated.get_rect(center=(self.x,self.y))
-        self.rect.width*=1.3
-        self.rect.height*=1.3
+        self.rect.width*=1.05
+        self.rect.height*=1.05
         self.cost_to_come=0
         self.cost_to_go = 0
     
