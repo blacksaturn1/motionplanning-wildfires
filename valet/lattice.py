@@ -49,26 +49,26 @@ class Lattice:
             state = self.queue.get()
             cost = state.cost_to_go
             
-            # if state.cost_to_go<lowestCostState.cost_to_go:
-            #     lowestCostState=state
-            #     if state.cost_to_go>500:
-            #         self.robot.maxspeed=45
-            #     elif state.cost_to_go>200:
-            #         self.robot.maxspeed=45
-            #         self.robot.dt=.5
-            #     elif state.cost_to_go>50:
-            #         self.robot.maxspeed=45
-            #         self.robot.dt=.5
-            #     elif state.cost_to_go>15:
-            #         self.robot.maxspeed=10
-            #         self.robot.dt=.5
+            if state.cost_to_go<lowestCostState.cost_to_go:
+                lowestCostState=state
+                if state.cost_to_go>500:
+                    self.robot.maxspeed=45
+                elif state.cost_to_go>200:
+                    self.robot.maxspeed=45
+                    self.robot.dt=.5
+                elif state.cost_to_go>50:
+                    self.robot.maxspeed=45
+                    self.robot.dt=.5
+                elif state.cost_to_go>15:
+                    self.robot.maxspeed=10
+                    self.robot.dt=.5
 
             state_location = state.get_location()
             neighbors = self.robot.get_neighbors(state_location)
             for nextState in neighbors:
                 penalty = 1
                 if nextState.v<0:
-                    penalty = 10
+                    penalty = 1
                 
                 nextState.cost_to_come = (state.cost_to_come+
                                           nextState.get_cost(state_location))
@@ -82,7 +82,7 @@ class Lattice:
                     self.display.fill((255, 0, 0), (position, (2, 2)))
                     pygame.event.get()
                     pygame.display.update()
-            if counter >10: # and counter%1000==0:
+            if counter >200: # and counter%1000==0:
                 break
         self.lastState = state
         return state
@@ -90,8 +90,8 @@ class Lattice:
 
     def goalCheck(self,state:State):
         distanceToGoal = self.calculateCostToGoal(state)
-        thetaDiff = abs(self.goal[2]-state.theta)
-        return distanceToGoal<=5 and thetaDiff<=(math.pi/8)
+        #thetaDiff = abs(self.goal[2]-state.theta)
+        return distanceToGoal<=5 #and thetaDiff<=(math.pi/8)
 
 
     def plan(self):

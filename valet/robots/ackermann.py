@@ -24,7 +24,7 @@ class RobotAckermann(Robot):
         self.img = pygame.image.load(robotImg)
         self.rotated = self.img
         self.l=2.8 *25#* 15#* 35
-        self.dt = 0.75
+        self.dt = 0.25
         self.distanceToGoal=0.0
         self.rect=self.rotated.get_rect(center=(self.x,
                                                 self.y))

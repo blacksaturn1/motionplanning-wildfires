@@ -48,16 +48,22 @@ wumpus=Wumpus(wumpus_start,
 env=Envir(dims,robot,goal)
 env.getrandom_obstacles()
 
-dt=0
+
 lastime=pygame.time.get_ticks()
 # lattice = Lattice(start,goal,env.obstacles,robot,env.map,env.write_text_info)
 # lastState = lattice.search()
 # time.sleep(2)
 wumpus_goal=env.getrandom_obstacle()
+
+total_time_wumpus=0
+total_time_firetruck=0
+dt=0
 prm=PRM(start,goal,env.obstacles,robot,env.map,env.write_text_info)
 prm.sample()
 prm.create_network()
-
+dt = (pygame.time.get_ticks()-lastime)/1000
+total_time_firetruck+=dt
+lastime=pygame.time.get_ticks()
 # env.goal=wumpus_goal
 env.draw_environment()
 if debug:
@@ -68,17 +74,17 @@ robot.draw(env.map)
 wumpus.draw(env.map)
 # env.write_info()
 pygame.display.update()
-#time.sleep(5)
-
 wumpusDiscreteGoal = env.convert_x_to_column(wumpus_goal[0],15)-1,env.convert_y_to_row(wumpus_goal[1],15)
-#wumpusDiscreteGoal=(35,35)
 
 
 
 
-
+lastime=pygame.time.get_ticks()
 astar = AStar(wumpus_start,wumpusDiscreteGoal,env.obstacles,wumpus,env.map,env.write_text_info2)
 lastState2 = astar.search()
+dt = (pygame.time.get_ticks()-lastime)/1000
+total_time_wumpus+=dt
+lastime=pygame.time.get_ticks()
 time.sleep(2)
 robot_nextMove=None
 robot_lastMove=None
@@ -93,18 +99,27 @@ while running:
     dt = (pygame.time.get_ticks()-lastime)/1000
     lastime=pygame.time.get_ticks()
     pygame.display.update()
-    
-    goal = env.getburning_obstacle()
+
+    if not firetruck_running:
+        goal = env.getburning_obstacle()
     if goal is not None:
         env.draw_goal(goal,env.blue)
-        
+
+
+##########################################################
+    lastime=pygame.time.get_ticks()
+
+
+
+
     if robot_nextMove is None:
-        if robot_lastMove is not None:
-            start = robot_lastMove.get_location()
         if goal is not None:
             if not firetruck_running:
+                if robot_lastMove is not None:
+                    start = robot_lastMove.get_location()
                 prm.get_path(start,goal)
                 firetruck_running=True
+                firetruck_waypoint=1
             else:
                 firetruck_waypoint+=1
             for node in prm.search.path:
@@ -114,6 +129,9 @@ while running:
             if len(prm.search.path)>0 and len(prm.search.path)>firetruck_waypoint:
                 goal_local = prm.search.path[firetruck_waypoint].get_coords()
                 goal_lattice = (goal_local[0],goal_local[1],0)
+                env.draw_goal(goal_lattice,env.white)
+                if robot_lastMove is not None:
+                    start = robot_lastMove.get_location()
                 lattice = Lattice(start,goal_lattice,env.obstacles,robot,env.map,env.write_text_info)
                 robot_lastState = lattice.search()
             else:
@@ -134,17 +152,20 @@ while running:
         robot_lastMove=robot_nextMove
 
     robot.drive(robot_nextMove)
-    
+
+    dt = (pygame.time.get_ticks()-lastime)/1000
+    total_time_firetruck+=dt
+
+
+##############################################################################
+    lastime=pygame.time.get_ticks()
 
     nextMove2 = astar.step2()
-    
     wumpus.drive(nextMove2)
     #astar.currentState=nextMove2
     
     
     time.sleep(.1)
-    
-    
     env.draw_environment()
     if debug:
         for node in prm.planner.nodes:
@@ -169,29 +190,13 @@ while running:
         wumpus_start = (nextMove2.c,nextMove2.r)
         astar = AStar(wumpus_start,wumpusDiscreteGoal,env.obstacles,wumpus,env.map,env.write_text_info2)
         lastState2 = astar.search()
-        # env.goal=wumpus_goal
-        
-        # env.goal=env.getrandom_obstacle()
-        # goal=env.goal
-        # start = lastMove2.get_location()
-        
-        # env.draw_environment()
-        # robot.draw(env.map)
-        # wumpus.draw(env.map)
-        # env.write_text_info("Resetting goal...")
-
-        # pygame.display.update()
-        # time.sleep(2)
-        # astar = AStar(start,goal,env.obstacles,robot,env.map,env.write_text_info)
-        # lastState = astar.search()
-        # nextMove = astar.step2()
-
-        # env.map.fill(env.black)
-        # env.draw_obstacles()
         pygame.display.update()
-        # time.sleep(2)
     else:
         lastMove2=nextMove2
+    
+    dt = (pygame.time.get_ticks()-lastime)/1000
+    total_time_wumpus+=dt
+
 
     
 
