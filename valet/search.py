@@ -27,7 +27,7 @@ class Search(ABC):
         if gn is not None:
             path = [gn]
             nn = gn.parent
-            while nn is not None and counter<=100:
+            while nn is not None and counter<=50:
                 path.append(nn)
                 nn = nn.parent
                 counter+=1

@@ -35,7 +35,7 @@ class PRM:
         self.goal_radius=20
         self.start_pose=(self.currentLocation[0],self.currentLocation[1])
         self.node_radius=20
-        self.neighbours=12
+        self.neighbours=5
         self.planner = ProbabilisticRoadmap(self.map_size, self.start_pose, self.start_radius, self.goal_pose,
                                                 self.goal_radius, self.obstacles,
                                                 self.neighbours)

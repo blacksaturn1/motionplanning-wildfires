@@ -8,6 +8,7 @@ from valet.environment import Envir
 from valet.lattice import Lattice
 from valet.astar_planner import AStar
 from valet.prm_planner import PRM
+from valet.states.ackermannState import AckermannState
 import time
 
 
@@ -58,6 +59,10 @@ wumpus_goal=env.getrandom_obstacle()
 total_time_wumpus=0
 total_time_firetruck=0
 dt=0
+total_time_simulation=0
+
+
+
 prm=PRM(start,goal,env.obstacles,robot,env.map,env.write_text_info)
 prm.sample()
 prm.create_network()
@@ -90,6 +95,9 @@ robot_nextMove=None
 robot_lastMove=None
 firetruck_running=False
 firetruck_waypoint=1
+
+
+total_lastime=pygame.time.get_ticks()
 while running:
 
     for event in pygame.event.get():
@@ -109,9 +117,6 @@ while running:
 ##########################################################
     lastime=pygame.time.get_ticks()
 
-
-
-
     if robot_nextMove is None:
         if goal is not None:
             if not firetruck_running:
@@ -130,21 +135,22 @@ while running:
                 goal_local = prm.search.path[firetruck_waypoint].get_coords()
                 goal_lattice = (goal_local[0],goal_local[1],0)
                 env.draw_goal(goal_lattice,env.white)
-                if robot_lastMove is not None:
-                    start = robot_lastMove.get_location()
-                lattice = Lattice(start,goal_lattice,env.obstacles,robot,env.map,env.write_text_info)
-                robot_lastState = lattice.search()
+                robot_nextMove=AckermannState((goal_local[0],goal_local[1]),0,0,0,robot.img)
+                # if robot_lastMove is not None:
+                #     start = robot_lastMove.get_location()
+                # lattice = Lattice(start,goal_lattice,env.obstacles,robot,env.map,env.write_text_info)
+                # robot_lastState = lattice.search()
             else:
                 firetruck_running=False
                 firetruck_waypoint=1
-                env.obstacle_state[goal[2]]=env.green
+                env.obstacle_state[goal[2]]=env.white
                 goal=None
     else:
         robot_lastMove=robot_nextMove
     
-    if goal is not None and len(prm.search.path)>0:
-        robot_nextMove = lattice.step2()
-        lattice.currentState=robot_nextMove
+    # if goal is not None and len(prm.search.path)>0:
+    #     robot_nextMove = lattice.step2()
+    #     lattice.currentState=robot_nextMove
         # if robot_nextMove is None and goal is not None and firetruck_waypoint==1:
         #     env.obstacle_state[goal[2]]=env.green
     
@@ -152,6 +158,7 @@ while running:
         robot_lastMove=robot_nextMove
 
     robot.drive(robot_nextMove)
+    robot_nextMove=None
 
     dt = (pygame.time.get_ticks()-lastime)/1000
     total_time_firetruck+=dt
@@ -196,6 +203,17 @@ while running:
     
     dt = (pygame.time.get_ticks()-lastime)/1000
     total_time_wumpus+=dt
+
+
+    total_time_simulation += (pygame.time.get_ticks()-total_lastime)/1000
+    total_lastime=pygame.time.get_ticks()
+    if total_time_simulation>=72:
+        running=False
+        print("Total time simulation: {}".format(total_time_simulation))
+        print("Total time wumpus: {}".format(total_time_wumpus))
+        print("Total time firetruck: {}".format(total_time_firetruck))
+
+input("Press enter to end")
 
 
     

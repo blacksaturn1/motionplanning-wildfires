@@ -65,8 +65,8 @@ class AStar:
                     self.display.fill((255, 0, 0), (position, (2, 2)))
                     pygame.event.get()
                     pygame.display.update()
-                else:
-                    print("Duplicate")
+                # else:
+                #     print("Duplicate")
             # if counter >1 and counter%500==0:
             #     break
 
